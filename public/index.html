@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora con API</title>
+</head>
+<body>
+  <h1>Calculadora</h1>
+  <input type="number" id="a" placeholder="Número A" />
+  <input type="number" id="b" placeholder="Número B" />
+  <br/><br/>
+  <button onclick="calcular('sumar')">Sumar</button>
+  <button onclick="calcular('restar')">Restar</button>
+  <button onclick="calcular('multiplicar')">Multiplicar</button>
+  <button onclick="calcular('dividir')">Dividir</button>
+  <br/><br/>
+  <button onclick="guardar()">Guardar Última Operación</button>
+
+  <h2>Petición:</h2>
+  <pre id="peticion"></pre>
+
+  <h2>Respuesta:</h2>
+  <pre id="respuesta"></pre>
+
+  <script>
+    let ultimaOperacion = null;
+
+    async function calcular(tipo) {
+      const a = parseFloat(document.getElementById("a").value);
+      const b = parseFloat(document.getElementById("b").value);
+
+      const url = `http://localhost:3000/calculadora/${tipo}`;
+      const cuerpo = { a, b };
+
+      document.getElementById("peticion").innerText = JSON.stringify({
+        metodo: 'POST',
+        url,
+        cuerpo
+      }, null, 2);
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(cuerpo)
+      });
+
+      const data = await res.json();
+
+      document.getElementById("respuesta").innerText = JSON.stringify(data, null, 2);
+
+      ultimaOperacion = { tipo, a, b };
+    }
+
+    async function guardar() {
+      if (!ultimaOperacion) {
+        alert("Primero realiza una operación");
+        return;
+      }
+
+      const url = `http://localhost:3000/calculadora/guardar`;
+
+      document.getElementById("peticion").innerText = JSON.stringify({
+        metodo: 'POST',
+        url,
+        cuerpo: ultimaOperacion
+      }, null, 2);
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(ultimaOperacion)
+      });
+
+      const data = await res.json();
+
+      document.getElementById("respuesta").innerText = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>

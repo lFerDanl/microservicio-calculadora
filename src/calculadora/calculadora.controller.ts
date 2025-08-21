@@ -1,5 +1,6 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete } from '@nestjs/common';
 import { CalculadoraService } from './calculadora.service';
+import { TipoOperacion } from './operacion';
 
 @Controller('calculadora')
 export class CalculadoraController {
@@ -23,5 +24,21 @@ export class CalculadoraController {
   @Post('dividir')
   dividir(@Body() body: { a: number, b: number }) {
     return { resultado: this.calculadoraService.dividir(body.a, body.b) };
+  }
+
+  @Post('guardar')
+  guardar(@Body() body: { tipo: TipoOperacion, a: number, b: number }) {
+    return this.calculadoraService.guardar(body);
+  }
+
+  @Get('obtener/:id')
+  obtener(@Param('id') id: string) {
+    return this.calculadoraService.obtener(id);
+  }
+
+  @Delete('eliminar/:id')
+  async eliminar(@Param('id') id: string) {
+    await this.calculadoraService.eliminar(id);
+    return { eliminado: true };
   }
 }
